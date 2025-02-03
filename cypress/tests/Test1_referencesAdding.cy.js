@@ -56,7 +56,6 @@ describe('Adds references to monograph chapters', function () {
     it('Creates new submission with chapters', function () {
         cy.login('mdawson', null, 'publicknowledge');
         cy.get('#myQueue a:contains("New Submission")').click();
-        cy.findSubmission('myQueue', submissionData.title);
 
         beginSubmission(submissionData);
         detailsStep(submissionData);
