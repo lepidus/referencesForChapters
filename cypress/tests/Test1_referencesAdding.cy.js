@@ -22,21 +22,6 @@ function detailsStep(submissionData) {
     cy.contains('button', 'Continue').click();
 }
 
-function contributorsStep(submissionData) {
-    submissionData.contributors.forEach(authorData => {
-        cy.contains('button', 'Add Contributor').click();
-        cy.get('input[name="givenName-en"]').type(authorData.given, {delay: 0});
-        cy.get('input[name="familyName-en"]').type(authorData.family, {delay: 0});
-        cy.get('input[name="email"]').type(authorData.email, {delay: 0});
-        cy.get('select[name="country"]').select(authorData.country);
-        
-        cy.get('.modal__panel:contains("Add Contributor")').find('button').contains('Save').click();
-        cy.waitJQuery();
-    });
-
-    cy.contains('button', 'Continue').click();
-}
-
 describe('Adds references to monograph chapters', function () {
     let submissionData;
     
@@ -62,7 +47,7 @@ describe('Adds references to monograph chapters', function () {
                     'file': 'dummy.pdf',
                     'fileName': 'dummy.pdf',
                     'mimeType': 'application/pdf',
-                    'genre': 'Preprint Text'
+                    'genre': 'Book Manuscript'
                 }
             ]
 		}
@@ -70,10 +55,21 @@ describe('Adds references to monograph chapters', function () {
 
     it('Creates new submission with chapters', function () {
         cy.login('mdawson', null, 'publicknowledge');
-        // cy.get('#myQueue a:contains("New Submission")').click();
+        cy.get('#myQueue a:contains("New Submission")').click();
         cy.findSubmission('myQueue', submissionData.title);
 
-        // beginSubmission(submissionData);
+        beginSubmission(submissionData);
         detailsStep(submissionData);
+        cy.uploadSubmissionFiles(submissionData.files);
+        Cypress._.times(3, () => {
+            cy.contains('button', 'Continue').click();
+        });
+
+        cy.contains('button', 'Submit').click();
+        cy.get('.modal__panel:visible').within(() => {
+            cy.contains('button', 'Submit').click();
+        });
+        cy.waitJQuery();
+        cy.contains('h1', 'Submission complete');
     });
 });
