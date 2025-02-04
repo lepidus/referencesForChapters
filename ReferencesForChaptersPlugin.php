@@ -51,7 +51,10 @@ class ReferencesForChaptersPlugin extends GenericPlugin
         $request = Application::get()->getRequest();
         $templateMgr = TemplateManager::getManager($request);
 
-        $templateMgr->assign('chapter', $chapterForm->getChapter());
+        $chapter = $chapterForm->getChapter();
+        $chapterCitationsRaw = $chapter ? $chapter->getData('chapterCitationsRaw') : null;
+
+        $templateMgr->assign('chapterCitationsRaw', $chapterCitationsRaw);
         $templateMgr->registerFilter("output", array($this, 'addChapterReferencesFieldFilter'));
 
         return Hook::CONTINUE;

@@ -4,6 +4,6 @@
         id="chapterCitationsRaw"
         name="chapterCitationsRaw"
         multilingual=false
-        value=$chapter->getData("chapterCitationsRaw")
+        value=$chapterCitationsRaw
     }
 {/fbvFormSection}
