@@ -1,5 +1,28 @@
 import '../support/commands.js';
 
+function addChapter(chapter) {
+    cy.waitJQuery();
+    cy.get('a[id^="component-grid-users-chapter-chaptergrid-addChapter-button-"]:visible').click();
+    cy.wait(1000);
+
+    cy.get('form[id="editChapterForm"] input[id^="title-en-"]').type(chapter.title, {delay: 0});
+    cy.get('form[id="editChapterForm"] input[id^="subtitle-en-"]').type(chapter.subtitle, {delay: 0});
+    chapter.references.forEach(reference => {
+        cy.get('form[id="editChapterForm"] textarea[name="chapterCitationsRaw"]').type(reference, {delay: 0});
+        cy.get('form[id="editChapterForm"] textarea[name="chapterCitationsRaw"]').type('{enter}', {delay: 0});
+    });
+    chapter.contributors.forEach(contributor => {
+        cy.get('form[id="editChapterForm"] label:contains("' + Cypress.$.escapeSelector(contributor) + '")').click();
+    });
+    
+    cy.get('div.pkp_modal_panel div:contains("Add Chapter")').click();
+    cy.flushNotifications();
+
+    cy.get('form[id="editChapterForm"] button:contains("Save")').click();
+    cy.get('div:contains("Your changes have been saved.")');
+    cy.waitJQuery();
+}
+
 function beginSubmission(submissionData) {
     cy.get('input[name="locale"][value="en"]').click();
     cy.setTinyMceContent('startSubmission-title-control', submissionData.title);
@@ -17,7 +40,7 @@ function detailsStep(submissionData) {
         cy.wait(500);
         cy.get('#titleAbstract-keywords-control-en').type('{enter}', {delay: 0});
     });
-    cy.addChapters(submissionData.chapters);
+    submissionData.chapters.forEach(addChapter);
 
     cy.contains('button', 'Continue').click();
 }
@@ -34,12 +57,14 @@ describe('Adds references to monograph chapters', function () {
                 {
                     'title': 'Prologue',
                     'subtitle': 'Kratos throws himself from the mountain into the sea',
-                    'contributors': ['Michael Dawson']
+                    'contributors': ['Michael Dawson'],
+                    'references': ['First reference', 'Second reference']
                 },
                 {
                     'title': 'Chapter one',
                     'subtitle': 'Kratos meets the Hydra',
-                    'contributors': ['Michael Dawson']
+                    'contributors': ['Michael Dawson'],
+                    'references': ['Third reference', 'Fourth reference']
                 }
             ],
             files: [
