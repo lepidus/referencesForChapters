@@ -16,6 +16,7 @@ namespace APP\plugins\generic\referencesForChapters;
 use PKP\plugins\GenericPlugin;
 use APP\core\Application;
 use PKP\plugins\Hook;
+use APP\template\TemplateManager;
 
 class ReferencesForChaptersPlugin extends GenericPlugin
 {
@@ -27,9 +28,9 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             return $success;
         }
 
-        // if ($success && $this->getEnabled($mainContextId)) {
-        //     Hooks to be added
-        // }
+        if ($success && $this->getEnabled($mainContextId)) {
+            Hook::add('chapterform::display', [$this, 'addChapterReferencesField']);
+        }
 
         return $success;
     }
@@ -42,5 +43,30 @@ class ReferencesForChaptersPlugin extends GenericPlugin
     public function getDescription()
     {
         return __('plugins.generic.referencesForChapters.description');
+    }
+
+    public function addChapterReferencesField($hookName, $params)
+    {
+        $chapterForm = $params[0];
+        $request = Application::get()->getRequest();
+        $templateMgr = TemplateManager::getManager($request);
+
+        $templateMgr->assign('chapter', $chapterForm->getChapter());
+        $templateMgr->registerFilter("output", array($this, 'addChapterReferencesFieldFilter'));
+
+        return Hook::CONTINUE;
+    }
+
+    public function addChapterReferencesFieldFilter($output, $templateMgr)
+    {
+        if (preg_match('/<p><span class="formRequired">/', $output, $matches, PREG_OFFSET_CAPTURE)) {
+            $posMatch = $matches[0][1];
+            $chapterReferencesField = $templateMgr->fetch($this->getTemplateResource('chapterReferencesField.tpl'));
+            $output = substr_replace($output, $chapterReferencesField, $posMatch, 0);
+
+            $templateMgr->unregisterFilter('output', array($this, 'addChapterReferencesFieldFilter'));
+        }
+
+        return $output;
     }
 }

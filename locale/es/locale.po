@@ -16,3 +16,6 @@ msgstr "Referencias para Capítulos"
 
 msgid "plugins.generic.referencesForChapters.description"
 msgstr "Permite añadir referencias a los capítulos de la monografía"
+
+msgid "plugins.generic.referencesForChapters.chapterCitations"
+msgstr "Referencias del capítulo"
