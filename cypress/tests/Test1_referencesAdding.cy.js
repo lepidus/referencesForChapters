@@ -54,8 +54,8 @@ function changeAuthorEditPermission(authorName, option) {
 	} else {
 		cy.get('input[name="canChangeMetadata"]').uncheck();
 	}
-	cy.contains('#submitFormButton', 'OK').click();
-	cy.contains('The stage assignment has been changed');
+	cy.contains('.submitFormButton', 'OK').click();
+	cy.contains('The stage assignment has been changed.');
 }
 
 describe('Adds references to monograph chapters', function () {
