@@ -5,20 +5,20 @@ function addChapter(chapter) {
     cy.get('a[id^="component-grid-users-chapter-chaptergrid-addChapter-button-"]:visible').click();
     cy.wait(1000);
 
-    cy.get('form[id="editChapterForm"] input[id^="title-en-"]').type(chapter.title, {delay: 0});
-    cy.get('form[id="editChapterForm"] input[id^="subtitle-en-"]').type(chapter.subtitle, {delay: 0});
+    cy.get('#editChapterForm input[id^="title-en-"]').type(chapter.title, {delay: 0});
+    cy.get('#editChapterForm input[id^="subtitle-en-"]').type(chapter.subtitle, {delay: 0});
     chapter.references.forEach(reference => {
-        cy.get('form[id="editChapterForm"] textarea[name="chapterCitationsRaw"]').type(reference, {delay: 0});
-        cy.get('form[id="editChapterForm"] textarea[name="chapterCitationsRaw"]').type('{enter}', {delay: 0});
+        cy.get('#editChapterForm textarea[name="chapterCitationsRaw"]').type(reference, {delay: 0});
+        cy.get('#editChapterForm textarea[name="chapterCitationsRaw"]').type('{enter}', {delay: 0});
     });
     chapter.contributors.forEach(contributor => {
-        cy.get('form[id="editChapterForm"] label:contains("' + Cypress.$.escapeSelector(contributor) + '")').click();
+        cy.get('#editChapterForm label:contains("' + Cypress.$.escapeSelector(contributor) + '")').click();
     });
     
     cy.get('div.pkp_modal_panel div:contains("Add Chapter")').click();
     cy.flushNotifications();
 
-    cy.get('form[id="editChapterForm"] button:contains("Save")').click();
+    cy.get('#editChapterForm button:contains("Save")').click();
     cy.get('div:contains("Your changes have been saved.")');
     cy.waitJQuery();
 }
@@ -43,6 +43,19 @@ function detailsStep(submissionData) {
     submissionData.chapters.forEach(addChapter);
 
     cy.contains('button', 'Continue').click();
+}
+
+function changeAuthorEditPermission(authorName, option) {
+    cy.contains('span', authorName).parent().siblings('.show_extras').first().click();
+	cy.get('.pkp_linkaction_icon_edit_user:visible').click();
+	
+	if (option == 'check') {
+		cy.get('input[name="canChangeMetadata"]').check();
+	} else {
+		cy.get('input[name="canChangeMetadata"]').uncheck();
+	}
+	cy.contains('#submitFormButton', 'OK').click();
+	cy.contains('The stage assignment has been changed');
 }
 
 describe('Adds references to monograph chapters', function () {
@@ -78,7 +91,7 @@ describe('Adds references to monograph chapters', function () {
 		}
     });
 
-    it('Creates new submission with chapters', function () {
+    it('Creates new submission with chapters having references', function() {
         cy.login('mdawson', null, 'publicknowledge');
         cy.get('#myQueue a:contains("New Submission")').click();
 
@@ -95,5 +108,42 @@ describe('Adds references to monograph chapters', function () {
         });
         cy.waitJQuery();
         cy.contains('h1', 'Submission complete');
+    });
+    it('Display and editing of chapter references in workflow', function() {
+        cy.login('dbarnes', null, 'publicknowledge');
+        cy.findSubmission('active', submissionData.title);
+        changeAuthorEditPermission('Michael Dawson', 'check');
+        cy.logout();
+        
+        cy.login('mdawson', null, 'publicknowledge');
+        cy.findSubmission('myQueue', submissionData.title);
+
+        cy.get('#publication-button').click();
+        cy.get('#chapters-button').click();
+
+        submissionData.chapters.forEach(chapter => {
+            cy.contains('a', chapter.title).click();
+            cy.wait(1000);
+            chapter.references.forEach(chapterReference => {
+                cy.get('#editChapterForm textarea[name="chapterCitationsRaw"]')
+                    .invoke('val')
+                    .should('include', chapterReference);
+            });
+            cy.get('#editChapterForm button:contains("Cancel")').click();
+        });
+
+        cy.contains('a', submissionData.chapters[1].title).click();
+        cy.wait(1000);
+        cy.get('#editChapterForm textarea[name="chapterCitationsRaw"]')
+            .type('Fifth reference', {delay: 0});
+        cy.get('#editChapterForm button:contains("Save")').click();
+        cy.waitJQuery();
+        cy.reload();
+
+        cy.contains('a', submissionData.chapters[1].title).click();
+        cy.wait(1000);
+        cy.get('#editChapterForm textarea[name="chapterCitationsRaw"]')
+            .invoke('val')
+            .should('include', 'Fifth reference');
     });
 });
