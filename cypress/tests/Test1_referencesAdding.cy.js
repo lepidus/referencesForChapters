@@ -129,7 +129,7 @@ describe('Adds references to monograph chapters', function () {
                     .invoke('val')
                     .should('include', chapterReference);
             });
-            cy.get('#editChapterForm button:contains("Cancel")').click();
+            cy.get('#editChapterForm a:contains("Cancel")').click();
         });
 
         cy.contains('a', submissionData.chapters[1].title).click();
