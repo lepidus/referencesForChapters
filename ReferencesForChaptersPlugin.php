@@ -17,6 +17,7 @@ use PKP\plugins\GenericPlugin;
 use APP\core\Application;
 use PKP\plugins\Hook;
 use APP\template\TemplateManager;
+use PKP\db\DAORegistry;
 
 class ReferencesForChaptersPlugin extends GenericPlugin
 {
@@ -30,6 +31,9 @@ class ReferencesForChaptersPlugin extends GenericPlugin
 
         if ($success && $this->getEnabled($mainContextId)) {
             Hook::add('chapterform::display', [$this, 'addChapterReferencesField']);
+            Hook::add('chapterform::readuservars', [$this, 'setChapterFormToReadReferences']);
+            Hook::add('chapterform::execute', [$this, 'setChapterFormToSaveReferences']);
+            Hook::add('chapterdao::getAdditionalFieldNames', [$this, 'addReferencesSettingToChapter']);
         }
 
         return $success;
@@ -71,5 +75,43 @@ class ReferencesForChaptersPlugin extends GenericPlugin
         }
 
         return $output;
+    }
+
+    public function setChapterFormToReadReferences($hookName, $params)
+    {
+        $formUserVars = &$params[1];
+        $formUserVars[] = 'chapterCitationsRaw';
+    }
+
+    public function setChapterFormToSaveReferences($hookName, $params)
+    {
+        $chapterForm = &$params[0];
+        $chapter = $chapterForm->getChapter();
+        $chapterDao = DAORegistry::getDAO('ChapterDAO');
+
+        if ($chapter) {
+            $chapter->setData('chapterCitationsRaw', $chapterForm->getData('chapterCitationsRaw'));
+        } else {
+            $chapter = $chapterDao->newDataObject();
+            $chapter->setData('publicationId', $chapterForm->getPublication()->getId());
+            $chapter->setTitle($chapterForm->getData('title'), null);
+            $chapter->setSubtitle($chapterForm->getData('subtitle'), null);
+            $chapter->setAbstract($chapterForm->getData('abstract'), null);
+            $chapter->setDatePublished($chapterForm->getData('datePublished'));
+            $chapter->setPages($chapterForm->getData('pages'));
+            $chapter->setPageEnabled($chapterForm->getData('isPageEnabled'));
+            $chapter->setLicenseUrl($chapterForm->getData('licenseUrl'));
+            $chapter->setSequence(REALLY_BIG_NUMBER);
+            $chapter->setData('chapterCitationsRaw', $chapterForm->getData('chapterCitationsRaw'));
+            $chapterDao->insertChapter($chapter);
+            $chapterDao->resequenceChapters($chapterForm->getPublication()->getId());
+        }
+
+        $chapterForm->setChapter($chapter);
+    }
+
+    public function addReferencesSettingToChapter($hookName, $chapterDao, &$settingsFields)
+    {
+        $settingsFields[] = 'chapterCitationsRaw';
     }
 }
