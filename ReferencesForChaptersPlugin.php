@@ -66,7 +66,7 @@ class ReferencesForChaptersPlugin extends GenericPlugin
         $chapterCitationsRaw = $chapter ? $chapter->getData('chapterCitationsRaw') : null;
 
         $templateMgr->assign('chapterCitationsRaw', $chapterCitationsRaw);
-        $templateMgr->registerFilter("output", array($this, 'addChapterReferencesFieldFilter'));
+        $templateMgr->registerFilter("output", [$this, 'addChapterReferencesFieldFilter']);
 
         return Hook::CONTINUE;
     }
@@ -78,7 +78,7 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             $chapterReferencesField = $templateMgr->fetch($this->getTemplateResource('chapterReferencesField.tpl'));
             $output = substr_replace($output, $chapterReferencesField, $posMatch, 0);
 
-            $templateMgr->unregisterFilter('output', array($this, 'addChapterReferencesFieldFilter'));
+            $templateMgr->unregisterFilter('output', [$this, 'addChapterReferencesFieldFilter']);
         }
 
         return $output;
