@@ -103,8 +103,9 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             $chapter->setLicenseUrl($chapterForm->getData('licenseUrl'));
             $chapter->setSequence(REALLY_BIG_NUMBER);
             $chapter->setData('chapterCitationsRaw', $chapterForm->getData('chapterCitationsRaw'));
-            $chapterDao->insertChapter($chapter);
+            $chapterId = $chapterDao->insertChapter($chapter);
             $chapterDao->resequenceChapters($chapterForm->getPublication()->getId());
+            $chapter->setId($chapterId);
         }
 
         $chapterForm->setChapter($chapter);
