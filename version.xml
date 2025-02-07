@@ -12,7 +12,7 @@
 	<application>referencesForChapters</application>
 	<type>plugins.generic</type>
 	<release>1.0.0.0</release>
-	<date>2025-02-03</date>
+	<date>2025-02-07</date>
 	<lazy-load>1</lazy-load>
 	<class>ReferencesForChaptersPlugin</class>
 </version>

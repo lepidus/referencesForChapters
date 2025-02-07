@@ -16,6 +16,10 @@ namespace APP\plugins\generic\referencesForChapters;
 use PKP\plugins\GenericPlugin;
 use APP\core\Application;
 use PKP\plugins\Hook;
+use APP\template\TemplateManager;
+use PKP\db\DAORegistry;
+use APP\plugins\generic\referencesForChapters\classes\migrations\ChapterCitationsMigration;
+use APP\plugins\generic\referencesForChapters\classes\chapterCitation\ChapterCitationDAO;
 
 class ReferencesForChaptersPlugin extends GenericPlugin
 {
@@ -27,9 +31,12 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             return $success;
         }
 
-        // if ($success && $this->getEnabled($mainContextId)) {
-        //     Hooks to be added
-        // }
+        if ($success && $this->getEnabled($mainContextId)) {
+            Hook::add('chapterform::display', [$this, 'addChapterReferencesField']);
+            Hook::add('chapterform::readuservars', [$this, 'setChapterFormToReadReferences']);
+            Hook::add('chapterform::execute', [$this, 'setChapterFormToSaveReferences']);
+            Hook::add('chapterdao::getAdditionalFieldNames', [$this, 'addReferencesSettingToChapter']);
+        }
 
         return $success;
     }
@@ -42,5 +49,85 @@ class ReferencesForChaptersPlugin extends GenericPlugin
     public function getDescription()
     {
         return __('plugins.generic.referencesForChapters.description');
+    }
+
+    public function getInstallMigration()
+    {
+        return new ChapterCitationsMigration();
+    }
+
+    public function addChapterReferencesField($hookName, $params)
+    {
+        $chapterForm = $params[0];
+        $request = Application::get()->getRequest();
+        $templateMgr = TemplateManager::getManager($request);
+
+        $chapter = $chapterForm->getChapter();
+        $chapterCitationsRaw = $chapter ? $chapter->getData('chapterCitationsRaw') : null;
+
+        $templateMgr->assign('chapterCitationsRaw', $chapterCitationsRaw);
+        $templateMgr->registerFilter("output", [$this, 'addChapterReferencesFieldFilter']);
+
+        return Hook::CONTINUE;
+    }
+
+    public function addChapterReferencesFieldFilter($output, $templateMgr)
+    {
+        if (preg_match('/<p><span class="formRequired">/', $output, $matches, PREG_OFFSET_CAPTURE)) {
+            $posMatch = $matches[0][1];
+            $chapterReferencesField = $templateMgr->fetch($this->getTemplateResource('chapterReferencesField.tpl'));
+            $output = substr_replace($output, $chapterReferencesField, $posMatch, 0);
+
+            $templateMgr->unregisterFilter('output', [$this, 'addChapterReferencesFieldFilter']);
+        }
+
+        return $output;
+    }
+
+    public function setChapterFormToReadReferences($hookName, $params)
+    {
+        $formUserVars = &$params[1];
+        $formUserVars[] = 'chapterCitationsRaw';
+    }
+
+    public function setChapterFormToSaveReferences($hookName, $params)
+    {
+        $chapterForm = &$params[0];
+        $chapter = $chapterForm->getChapter();
+        $oldChapterCitationsRaw = null;
+        $chapterDao = DAORegistry::getDAO('ChapterDAO');
+
+        if ($chapter) {
+            $oldChapterCitationsRaw = $chapter->getData('chapterCitationsRaw');
+            $chapter->setData('chapterCitationsRaw', $chapterForm->getData('chapterCitationsRaw'));
+        } else {
+            $chapter = $chapterDao->newDataObject();
+            $chapter->setData('publicationId', $chapterForm->getPublication()->getId());
+            $chapter->setTitle($chapterForm->getData('title'), null);
+            $chapter->setSubtitle($chapterForm->getData('subtitle'), null);
+            $chapter->setAbstract($chapterForm->getData('abstract'), null);
+            $chapter->setDatePublished($chapterForm->getData('datePublished'));
+            $chapter->setPages($chapterForm->getData('pages'));
+            $chapter->setPageEnabled($chapterForm->getData('isPageEnabled'));
+            $chapter->setLicenseUrl($chapterForm->getData('licenseUrl'));
+            $chapter->setSequence(REALLY_BIG_NUMBER);
+            $chapter->setData('chapterCitationsRaw', $chapterForm->getData('chapterCitationsRaw'));
+            $chapterId = $chapterDao->insertChapter($chapter);
+            $chapterDao->resequenceChapters($chapterForm->getPublication()->getId());
+            $chapter->setId($chapterId);
+        }
+
+        if ($oldChapterCitationsRaw != $chapter->getData('chapterCitationsRaw')) {
+            $chapterCitationDao = new ChapterCitationDAO();
+            $chapterCitationDao->importChapterCitations($chapter->getId(), $chapter->getData('chapterCitationsRaw'));
+        }
+
+
+        $chapterForm->setChapter($chapter);
+    }
+
+    public function addReferencesSettingToChapter($hookName, $chapterDao, &$settingsFields)
+    {
+        $settingsFields[] = 'chapterCitationsRaw';
     }
 }
