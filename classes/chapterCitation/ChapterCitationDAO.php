@@ -9,16 +9,39 @@ use ChapterCitation;
 
 class ChapterCitationDAO extends DAO
 {
+    public $table = 'chapter_citations';
+
     public function insertObject($chapterCitation)
     {
-        // To be implemented
+        $seq = $chapterCitation->getSequence();
+        if (!(is_numeric($seq) && $seq > 0)) {
+            $lastSeq = DB::table($this->table)
+                ->where('chapter_id', '=', $chapterCitation->getChapterId())
+                ->max('seq');
+            $chapterCitation->setSequence($lastSeq ? $lastSeq + 1 : 1);
+        }
+
+        DB::table($this->table)->insert([
+            'chapter_id' => $chapterCitation->getChapterId(),
+            'raw_citation' => $chapterCitation->getRawCitation(),
+            'seq' => $chapterCitation->getSequence()
+        ]);
+
+        return $this->getInsertId();
     }
 
     public function getByChapterId($chapterId)
     {
-        $result = DB::table('chapter_citations')
+        $result = DB::table($this->table)
             ->where('chapter_id', '=', $chapterId)
             ->get();
+
+        $chapterCitations = [];
+        foreach ($result as $row) {
+            $chapterCitations[] = $this->fromRow(get_object_vars($row));
+        }
+
+        return $chapterCitations;
     }
 
     public function importChapterCitations($chapterId, $rawCitationList)
@@ -44,13 +67,24 @@ class ChapterCitationDAO extends DAO
 
     public function deleteByChapterId($chapterId)
     {
-        DB::table('chapter_citations')
+        DB::table($this->table)
             ->where('chapter_id', '=', $chapterId)
             ->delete();
     }
 
-    private function fromRow()
+    public function newDataObject()
     {
-        // To be implemented
+        return new ChapterCitation();
+    }
+
+    private function fromRow($row)
+    {
+        $chapterCitation = $this->newDataObject();
+        $chapterCitation->setId((int) $row['chapter_citation_id']);
+        $chapterCitation->setChapterId((int) $row['chapter_id']);
+        $chapterCitation->setRawCitation($row['raw_citation']);
+        $chapterCitation->setSequence((int) $row['seq']);
+
+        return $chapterCitation;
     }
 }
