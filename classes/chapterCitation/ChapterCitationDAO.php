@@ -5,7 +5,6 @@ namespace APP\plugins\generic\referencesForChapters\classes\chapterCitation;
 use PKP\db\DAO;
 use Illuminate\Support\Facades\DB;
 use PKP\citation\CitationListTokenizerFilter;
-use ChapterCitation;
 
 class ChapterCitationDAO extends DAO
 {

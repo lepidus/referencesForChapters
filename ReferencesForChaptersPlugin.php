@@ -19,6 +19,7 @@ use PKP\plugins\Hook;
 use APP\template\TemplateManager;
 use PKP\db\DAORegistry;
 use APP\plugins\generic\referencesForChapters\classes\migrations\ChapterCitationsMigration;
+use APP\plugins\generic\referencesForChapters\classes\chapterCitation\ChapterCitationDAO;
 
 class ReferencesForChaptersPlugin extends GenericPlugin
 {
@@ -113,6 +114,12 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             $chapterDao->resequenceChapters($chapterForm->getPublication()->getId());
             $chapter->setId($chapterId);
         }
+
+        if ($chapter->getData('chapterCitationsRaw')) {
+            $chapterCitationDao = new ChapterCitationDAO();
+            $chapterCitationDao->importChapterCitations($chapter->getId(), $chapter->getData('chapterCitationsRaw'));
+        }
+
 
         $chapterForm->setChapter($chapter);
     }
