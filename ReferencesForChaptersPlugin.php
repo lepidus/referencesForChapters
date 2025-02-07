@@ -36,6 +36,7 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             Hook::add('chapterform::readuservars', [$this, 'setChapterFormToReadReferences']);
             Hook::add('chapterform::execute', [$this, 'setChapterFormToSaveReferences']);
             Hook::add('chapterdao::getAdditionalFieldNames', [$this, 'addReferencesSettingToChapter']);
+            Hook::add('CatalogBookHandler::book', [$this, 'assignReferencesToChapterPage']);
         }
 
         return $success;
@@ -129,5 +130,22 @@ class ReferencesForChaptersPlugin extends GenericPlugin
     public function addReferencesSettingToChapter($hookName, $chapterDao, &$settingsFields)
     {
         $settingsFields[] = 'chapterCitationsRaw';
+    }
+
+    public function assignReferencesToChapterPage($hookName, $params)
+    {
+        $request = &$params[0];
+        $templateMgr = TemplateManager::getManager($request);
+        $isChapterRequest = $templateMgr->getTemplateVars('isChapterRequest');
+
+        if ($isChapterRequest) {
+            $chapter = $templateMgr->getTemplateVars('chapter');
+
+            if ($chapter->getData('chapterCitationsRaw')) {
+                $chapterCitationDao = new ChapterCitationDAO();
+                $chapterCitations = $chapterCitationDao->getByChapterId($chapter->getId());
+                $templateMgr->assign('chapterCitations', $chapterCitations);
+            }
+        }
     }
 }

@@ -38,6 +38,23 @@ class ChapterCitation extends DataObject
         return $this->getData('seq');
     }
 
+    public function getCitationWithLinks()
+    {
+        $citation = $this->getRawCitation();
+        if (stripos($citation, '<a href=') === false) {
+            $citation = preg_replace_callback(
+                '#(http|https|ftp)://[\d\w\.-]+\.[\w\.]{2,6}[^\s\]\[\<\>]*/?#',
+                function ($matches) {
+                    $trailingDot = in_array($char = substr($matches[0], -1), ['.', ',']);
+                    $url = rtrim($matches[0], '.,');
+                    return "<a href=\"{$url}\">{$url}</a>" . ($trailingDot ? $char : '');
+                },
+                $citation
+            );
+        }
+        return $citation;
+    }
+
     private function cleanCitationString($citationString)
     {
         $citationString = trim(stripslashes($citationString));
