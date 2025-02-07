@@ -18,6 +18,7 @@ use APP\core\Application;
 use PKP\plugins\Hook;
 use APP\template\TemplateManager;
 use PKP\db\DAORegistry;
+use APP\plugins\generic\referencesForChapters\classes\migrations\ChapterCitationsMigration;
 
 class ReferencesForChaptersPlugin extends GenericPlugin
 {
@@ -47,6 +48,11 @@ class ReferencesForChaptersPlugin extends GenericPlugin
     public function getDescription()
     {
         return __('plugins.generic.referencesForChapters.description');
+    }
+
+    public function getInstallMigration()
+    {
+        return new ChapterCitationsMigration();
     }
 
     public function addChapterReferencesField($hookName, $params)
