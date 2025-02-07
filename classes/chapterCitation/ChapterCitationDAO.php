@@ -48,18 +48,16 @@ class ChapterCitationDAO extends DAO
         $this->deleteByChapterId($chapterId);
 
         $citationTokenizer = new CitationListTokenizerFilter();
-        $citationStrings = $citationTokenizer->execute($rawCitationList);
+        $citationStrings = $rawCitationList ? $citationTokenizer->execute($rawCitationList) : [];
 
-        if (is_array($citationStrings)) {
-            foreach ($citationStrings as $seq => $citationString) {
-                if (!empty(trim($citationString))) {
-                    $chapterCitation = new ChapterCitation();
-                    $chapterCitation->setChapterId($chapterId);
-                    $chapterCitation->setRawCitation($citationString);
-                    $chapterCitation->setSequence($seq + 1);
+        foreach ($citationStrings as $seq => $citationString) {
+            if (!empty(trim($citationString))) {
+                $chapterCitation = new ChapterCitation();
+                $chapterCitation->setChapterId($chapterId);
+                $chapterCitation->setRawCitation($citationString);
+                $chapterCitation->setSequence($seq + 1);
 
-                    $this->insertObject($chapterCitation);
-                }
+                $this->insertObject($chapterCitation);
             }
         }
     }

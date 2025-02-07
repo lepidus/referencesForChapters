@@ -94,9 +94,11 @@ class ReferencesForChaptersPlugin extends GenericPlugin
     {
         $chapterForm = &$params[0];
         $chapter = $chapterForm->getChapter();
+        $oldChapterCitationsRaw = null;
         $chapterDao = DAORegistry::getDAO('ChapterDAO');
 
         if ($chapter) {
+            $oldChapterCitationsRaw = $chapter->getData('chapterCitationsRaw');
             $chapter->setData('chapterCitationsRaw', $chapterForm->getData('chapterCitationsRaw'));
         } else {
             $chapter = $chapterDao->newDataObject();
@@ -115,7 +117,7 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             $chapter->setId($chapterId);
         }
 
-        if ($chapter->getData('chapterCitationsRaw')) {
+        if ($oldChapterCitationsRaw != $chapter->getData('chapterCitationsRaw')) {
             $chapterCitationDao = new ChapterCitationDAO();
             $chapterCitationDao->importChapterCitations($chapter->getId(), $chapter->getData('chapterCitationsRaw'));
         }
