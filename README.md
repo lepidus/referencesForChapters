@@ -25,7 +25,9 @@ After installing and enabling the plugin, a new field will be displayed in the f
 
 ![References on chapter form](assets/references_on_chapter_form.png)
 
-To display the chapter references in the chapter page, it's necessary to add a little adjustment in the OMP theme being used. Here is an example of the references being displayed in the Default theme, after the change:
+---
+
+To display the chapter references on the chapter page, it's necessary to make a small adjustment to the OMP theme being used. Here is an example of the references being displayed in the Default theme, after the change:
 
 ![References on chapter page](assets/references_chapter_page.png)
 
