@@ -23,7 +23,7 @@ To download the plugin, go to the [Releases page](https://github.com/lepidus/ref
 
 After installing and enabling the plugin, a new field will be displayed in the form used to create/edit chapters. Its functioning is similar to the submission's references field.
 
-![References on chapter form](assets/references_chapter_form.png)
+![References on chapter form](assets/references_on_chapter_form.png)
 
 To display the chapter references in the chapter page, it's necessary to add a little adjustment in the OMP theme being used. Here is an example of the references being displayed in the Default theme, after the change:
 
