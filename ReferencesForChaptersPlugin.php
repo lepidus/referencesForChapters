@@ -171,8 +171,16 @@ class ReferencesForChaptersPlugin extends GenericPlugin
 
     public function addReferencesToChapterPageFilter($output, $templateMgr)
     {
-        error_log($output);
+        if (preg_match('/<\/div><!-- \.main_entry -->/', $output, $matches, PREG_OFFSET_CAPTURE)) {
+            $match = $matches[0][0];
+            $offset = $matches[0][1];
 
+            $newOutput = substr($output, 0, $offset);
+            $newOutput .= $templateMgr->fetch($this->getTemplateResource('frontend/chapterCitations.tpl'));
+            $newOutput .= substr($output, $offset);
+            $output = $newOutput;
+            $templateMgr->unregisterFilter('output', [$this, 'addReferencesToChapterPageFilter']);
+        }
         return $output;
     }
 }
