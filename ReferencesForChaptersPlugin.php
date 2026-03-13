@@ -23,6 +23,8 @@ use APP\plugins\generic\referencesForChapters\classes\chapterCitation\ChapterCit
 
 class ReferencesForChaptersPlugin extends GenericPlugin
 {
+    private const DEFAULT_THEME_PATH = 'default';
+
     public function register($category, $path, $mainContextId = null)
     {
         $success = parent::register($category, $path, $mainContextId);
@@ -37,6 +39,7 @@ class ReferencesForChaptersPlugin extends GenericPlugin
             Hook::add('chapterform::execute', [$this, 'setChapterFormToSaveReferences']);
             Hook::add('chapterdao::getAdditionalFieldNames', [$this, 'addReferencesSettingToChapter']);
             Hook::add('CatalogBookHandler::book', [$this, 'assignReferencesToChapterPage']);
+            Hook::add('TemplateManager::display', [$this, 'addReferencesToChapterPage']);
         }
 
         return $success;
@@ -147,5 +150,29 @@ class ReferencesForChaptersPlugin extends GenericPlugin
                 $templateMgr->assign('chapterCitations', $chapterCitations);
             }
         }
+    }
+
+    public function addReferencesToChapterPage($hookName, $params)
+    {
+        $templateMgr = $params[0];
+        $template = $params[1];
+
+        $context = Application::get()->getRequest()->getContext();
+        $isChapterRequest = $templateMgr->getTemplateVars('isChapterRequest');
+
+        if (
+            $template == 'frontend/pages/book.tpl'
+            && $isChapterRequest
+            && $context->getData('themePluginPath') == self::DEFAULT_THEME_PATH
+        ) {
+            $templateMgr->registerFilter("output", [$this, 'addReferencesToChapterPageFilter']);
+        }
+    }
+
+    public function addReferencesToChapterPageFilter($output, $templateMgr)
+    {
+        error_log($output);
+
+        return $output;
     }
 }
