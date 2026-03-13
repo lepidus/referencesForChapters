@@ -27,11 +27,33 @@ After installing and enabling the plugin, a new field will be displayed in the f
 
 ---
 
-To display the chapter references on the chapter page, it's necessary to make a small adjustment to the OMP theme being used. Here is an example of the references being displayed in the Default theme, after the change:
+The plugin adds a new section to the chapter page, displaying the chapter references at the end of the main section. This only happens if the Default Theme is being used, as shown below.
 
 ![References on chapter page](assets/references_chapter_page.png)
+
+To display the chapter references in the chapter page for other themes, it's necessary to make a small adjustment to the OMP theme being used. You'll need to add the following strip of code to the `templates/frontend/objects/chapter.tpl` file, adding it to the position you want to exhibit the references.
+
+```smarty
+{* Chapter references *}
+{if $chapterCitations || $chapter->getData('chapterCitationsRaw')}
+    <div class="item references">
+        <h2 class="label">
+            {translate key="submission.citations"}
+        </h2>
+        <div class="value">
+            {if $chapterCitations}
+                {foreach from=$chapterCitations item=$chapterCitation}
+                    <p>{$chapterCitation->getCitationWithLinks()|strip_unsafe_html}</p>
+                {/foreach}
+            {else}
+                {$chapter->getData('chapterCitationsRaw')|escape|nl2br}
+            {/if}
+        </div>
+    </div>
+{/if}
+```
 
 # License
 __This plugin is licensed under the GNU General Public License v3.0__
 
-__Copyright (c) 2025 Lepidus Tecnologia__
+__Copyright (c) 2025 - 2026 Lepidus Tecnologia__
