@@ -1,0 +1,14 @@
+on:
+  push:
+    tags:
+      - 'v*'
+
+name: Create release and tar.gz package for it
+
+jobs:
+  create-release:
+    uses: lepidus/github-workflows/.github/workflows/generate-package.yml@main
+    with:
+      plugin_name: referencesForChapters
+    permissions:
+      contents: write
