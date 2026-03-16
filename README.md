@@ -1,3 +1,5 @@
+**English** | [Português Brasileiro](/docs/README-pt_BR.md) | [Español](/docs/README-es.md)
+
 # References for Chapters Plugin 
 
 This plugin allows the adding of references for monograph chapters in OMP.
