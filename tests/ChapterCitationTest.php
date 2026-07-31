@@ -20,7 +20,7 @@ class ChapterCitationTest extends PKPTestCase
     public function testCleansRawCitation(): void
     {
         $chapterCitation = new ChapterCitation();
-        $chapterCitation->setRawCitation('  First \reference   ');
+        $chapterCitation->setRawCitation("  First\t\u{00A0}\n\\reference   ");
 
         $this->assertEquals('First reference', $chapterCitation->getRawCitation());
     }
