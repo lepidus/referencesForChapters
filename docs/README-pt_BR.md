@@ -8,7 +8,7 @@ Este plugin permite a adição de referências para capítulos de monografias no
 
 A versão mais recente deste plugin é compatível com as seguintes aplicações PKP:
 
-* OMP 3.4.0
+* OMP 3.5.0
 
 ## Download do Plugin
 

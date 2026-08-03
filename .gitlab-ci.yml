@@ -3,9 +3,10 @@ variables:
 
 include:
   - project: 'documentacao-e-tarefas/modelosparaintegracaocontinua'
-    ref: stable-3_4_0
+    ref: stable-3_5_0
     file:
       - 'templates/groups/pkp_plugin.yml'
+      - 'templates/groups/omp/unit_tests.yml'
       - 'templates/groups/omp/cypress_tests.yml'
 
 omp_integration_tests:

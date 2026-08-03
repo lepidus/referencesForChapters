@@ -11,7 +11,7 @@
 <version>
 	<application>referencesForChapters</application>
 	<type>plugins.generic</type>
-	<release>1.1.0.1</release>
+	<release>2.0.0.0</release>
 	<date>2026-08-03</date>
 	<lazy-load>1</lazy-load>
 	<class>ReferencesForChaptersPlugin</class>

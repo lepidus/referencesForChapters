@@ -1,7 +1,8 @@
 Cypress.Commands.add('findSubmission', function(tab, title) {
-	cy.get('#' + tab + '-button').click();
-    cy.get('.listPanel__itemSubtitle:visible:contains("' + title + '")').first()
-        .parent().parent().within(() => {
-            cy.get('.pkpButton:contains("View")').click();
-        });
+	if (tab === 'active') {
+		cy.get('nav').contains('Active submissions').click();
+	}
+	cy.contains('table tr', title).within(() => {
+		cy.contains('button', /^\s*View\s*$/).click({force: true});
+	});
 });

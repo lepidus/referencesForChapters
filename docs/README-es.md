@@ -8,7 +8,7 @@ Este módulo permite agregar referencias para capítulos de monografías en OMP.
 
 La versión más reciente de este módulo es compatible con las siguientes aplicaciones PKP:
 
-* OMP 3.4.0
+* OMP 3.5.0
 
 ## Descarga del módulo
 

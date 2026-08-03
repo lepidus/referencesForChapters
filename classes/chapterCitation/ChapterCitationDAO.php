@@ -2,9 +2,9 @@
 
 namespace APP\plugins\generic\referencesForChapters\classes\chapterCitation;
 
-use PKP\db\DAO;
 use Illuminate\Support\Facades\DB;
 use PKP\citation\CitationListTokenizerFilter;
+use PKP\db\DAO;
 
 class ChapterCitationDAO extends DAO
 {
@@ -33,6 +33,7 @@ class ChapterCitationDAO extends DAO
     {
         $result = DB::table($this->table)
             ->where('chapter_id', '=', $chapterId)
+            ->orderBy('seq')
             ->get();
 
         $chapterCitations = [];
