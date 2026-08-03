@@ -1,7 +1,7 @@
 <?php
 
-use PKP\tests\PKPTestCase;
 use APP\plugins\generic\referencesForChapters\classes\chapterCitation\ChapterCitation;
+use PKP\tests\PKPTestCase;
 
 class ChapterCitationTest extends PKPTestCase
 {

@@ -8,7 +8,7 @@ This plugin allows the adding of references for monograph chapters in OMP.
 
 The latest release of this plugin is compatible with the following PKP applications:
 
-* OMP 3.4.0
+* OMP 3.5.0
 
 ## Plugin Download
 
