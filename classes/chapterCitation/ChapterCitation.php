@@ -3,7 +3,6 @@
 namespace APP\plugins\generic\referencesForChapters\classes\chapterCitation;
 
 use PKP\core\DataObject;
-use PKP\core\PKPString;
 
 class ChapterCitation extends DataObject
 {
@@ -58,7 +57,7 @@ class ChapterCitation extends DataObject
     private function cleanCitationString($citationString)
     {
         $citationString = trim(stripslashes($citationString));
-        $citationString = PKPString::regexp_replace('/[\s]+/', ' ', $citationString);
+        $citationString = preg_replace('/[\s]+/u', ' ', $citationString);
 
         return $citationString;
     }
